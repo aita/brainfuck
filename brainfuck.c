@@ -1,10 +1,12 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include <limits.h>
 
 #define TAPE_LENGTH 30000
 #define MAX_LOOP 1000
 #define PROGRAM_SIZE 100000
+#define OPCODE_MAX ULONG_MAX
 
 enum {
     NOP,
@@ -20,7 +22,7 @@ enum {
     NUM_OPCODES
 };
 
-typedef unsigned char bf_opcode_t;
+typedef unsigned long bf_opcode_t;
 
 typedef struct bf_state {
     unsigned char tape[TAPE_LENGTH];
@@ -54,75 +56,61 @@ bf_run(bf_program_t *program) {
 
 static void
 run(bf_state_t *s, bf_program_t *p) {
-    int nskip = 0;
-    int nloop = 0;
-    bf_opcode_t *loops[MAX_LOOP] = {0};
     bf_opcode_t *op = &p->opcodes[0];
 
     for (;;) {
-        int n;
+        unsigned int n;
+        unsigned int loop;
 
         switch (*op++) {
             case NOP:
                 break;
             case RIGHT:
                 n = *op++;
-                if (!nskip) {
-                    s->ptr += n;
-                }
+                s->ptr += n;
                 break;
             case LEFT:
                 n = *op++;
-                if (!nskip) {
-                    s->ptr -= n;
-                }
+                s->ptr -= n;
                 break;
             case ADD:
                 n = *op++;
-                if (!nskip) {
-                    (*s->ptr) += n;
-                }
+                (*s->ptr) += n;
                 break;
             case SUB:
                 n = *op++;
-                if (!nskip) {
-                    (*s->ptr) -= n;
-                }
+                (*s->ptr) -= n;
                 break;
             case PUTC:
-                if (!nskip) {
-                    s->put_char(s, *s->ptr);
-                }
+                s->put_char(s, *s->ptr);
                 break;
             case GETC:
-                if (!nskip) {
-                    *s->ptr = (unsigned char)s->get_char(s);
-                }
+                *s->ptr = (unsigned char)s->get_char(s);
                 break;
             case LOOP:
-                loops[nloop++] = op;
+                loop = *op++;
                 if (!*s->ptr) {
-                    nskip++;
+                    for(;;) {
+                        if (*op++ == ENDLOOP && *op++ == loop) {
+                            break;
+                        }
+                    }
                 }
                 break;
             case ENDLOOP:
-                if (nloop < 1) {
-                    fprintf(stderr, "bad loop\n");
-                    return;
-                }
+                loop = *op++;
                 if (*s->ptr) {
-                    op = loops[nloop-1];
-                } else {
-                     nloop--;
-                }
-                if (nskip) {
-                    nskip--;
+                    for(op -= 2; ; op--) {
+                        if (*op == LOOP && *(op+1) == loop) {
+                            break;
+                        }
+                    }
                 }
                 break;
             case EXIT:
                 return;
             default:
-                fprintf(stderr, "invalid opcode: %d\n", *op);
+                fprintf(stderr, "invalid opcode: %ld\n", *op);
                 return;
         }
     }
@@ -130,6 +118,9 @@ run(bf_state_t *s, bf_program_t *p) {
 
 static bf_program_t *
 bf_compile(const char *c) {
+    unsigned int loop = 1;
+    unsigned int nloops = 0;
+    unsigned int loops[1000] = {0};
     bf_program_t *p;
     bf_opcode_t *op;
 
@@ -145,22 +136,22 @@ bf_compile(const char *c) {
         switch (*c++) {
             case '>':
                 *op++ = RIGHT;
-                for(n = 1; *c == '<' && n < 256; n++, c++);
+                for(n = 1; *c == '<' && n < OPCODE_MAX; n++, c++);
                 *op++ = n;
                 break;
             case '<':
                 *op++ = LEFT;
-                for(n = 1; *c == '>' && n < 256; n++, c++);
+                for(n = 1; *c == '>' && n < OPCODE_MAX; n++, c++);
                 *op++ = n;
                 break;
             case '+':
                 *op++ = ADD;
-                for(n = 1; *c == '+' && n < 256; n++, c++);
+                for(n = 1; *c == '+' && n < OPCODE_MAX; n++, c++);
                 *op++ = n;
                 break;
             case '-':
                 *op++ = SUB;
-                for(n = 1; *c == '-' && n < 256; n++, c++);
+                for(n = 1; *c == '-' && n < OPCODE_MAX; n++, c++);
                 *op++ = n;
                 break;
             case '.':
@@ -171,9 +162,16 @@ bf_compile(const char *c) {
                 break;
             case '[':
                 *op++ = LOOP;
+                *op++ = loops[nloops++] = loop++;
                 break;
             case ']':
+                if (nloops < 1) {
+                    fprintf(stderr, "bad loop\n");
+                    return;
+                }
+                nloops--;
                 *op++ = ENDLOOP;
+                *op++ = loops[nloops];
                 break;
             case 0:
                 *op = EXIT;
