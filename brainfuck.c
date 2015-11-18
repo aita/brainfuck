@@ -187,8 +187,7 @@ exit:
 
 void
 bf_program_delete(bf_program_t *p) {
-    // free(p->opcodes);
-    // free(p);
+    free(p);
 }
 
 static void
