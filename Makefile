@@ -1,4 +1,8 @@
-brainfuck: brainfuck.c
+.s.o:
+	$(CC) -c $@ $<
+
+brainfuck: main.o vm.o
+	$(CC) -o $@ $^
 
 .PHONY: clean
 clean:
