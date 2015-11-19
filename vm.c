@@ -74,11 +74,9 @@ bf_run(bf_state_t *s, bf_program_t *p) {
                 *s->ptr = (unsigned char)s->get_char(s);
                 break;
             case JZ:
+                offset = (long)*op++;
                 if (!*s->ptr) {
-                    offset = (long)*op++;
                     op += offset;
-                } else {
-                     op++;
                 }
                 break;
             case JMP:
