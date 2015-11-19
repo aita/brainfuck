@@ -94,7 +94,7 @@ bf_run(bf_state_t *s, bf_program_t *p) {
 
 bf_program_t *
 bf_compile(const char *c) {
-    unsigned int nloops;
+    unsigned int nloops = 0;
     unsigned int nlabels = 0;
     long offset = 0;
     long labels[MAX_LABELS];
