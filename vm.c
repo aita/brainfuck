@@ -13,7 +13,6 @@ const char *OPCODES[] = {
     "JMP",
     "PUTC",
     "GETC",
-    "EXIT",
 };
 
 
@@ -42,12 +41,12 @@ bf_state_delete(bf_state_t *s) {
 void
 bf_run(bf_state_t *s, bf_program_t *p) {
     bf_opcode_t *op = &p->opcodes[0];
+    bf_opcode_t *end = op + p->len;
 
-    for (;;) {
+    for (; op != end;) {
         unsigned int n;
         long offset;
 
-        // printf("%s\n", OPCODES[*op]);
         switch (*op++) {
             case NOP:
                 break;
@@ -83,8 +82,6 @@ bf_run(bf_state_t *s, bf_program_t *p) {
                 offset = (long)*op++;
                 op += offset;
                 break;
-            case EXIT:
-                return;
             default:
                 fprintf(stderr, "invalid opcode: %ld\n", *op);
                 return;
@@ -110,6 +107,11 @@ bf_compile(const char *c) {
     op = &p->opcodes[0];
     for (;;) {
         int n;
+
+        if (offset >= PROGRAM_SIZE) {
+            fprintf(stderr, "the program is too long.\n");
+            return NULL;
+        }
 
         switch (*c++) {
             case '>':
@@ -162,14 +164,13 @@ bf_compile(const char *c) {
                 offset += 2;
                 break;
             case 0:
-                *op = EXIT;
-                offset++;
                 goto exit;
             default:
                 break;
         }
     }
 exit:
+    p->len = offset;
     return p;
 }
 
@@ -178,7 +179,7 @@ bf_disasm(bf_program_t *p) {
     long off = 0;
     bf_opcode_t *op = p->opcodes;
 
-    for (; *op != EXIT; op++) {
+    for (; op != op + p->len; op++) {
         switch (*op) {
             case LEFT:
             case RIGHT:

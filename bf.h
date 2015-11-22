@@ -1,4 +1,5 @@
 #include <limits.h>
+#include <stdlib.h>
 
 #define TAPE_LENGTH 30000
 #define MAX_LABELS 1000
@@ -15,7 +16,6 @@ enum {
     JMP,
     PUTC,
     GETC,
-    EXIT,
     NUM_OPCODES,
 };
 
@@ -32,6 +32,7 @@ typedef struct bf_state {
 
 typedef struct bf_program {
     bf_opcode_t opcodes[PROGRAM_SIZE];
+    size_t len;
 } bf_program_t;
 
 
