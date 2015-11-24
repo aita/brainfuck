@@ -34,11 +34,11 @@ bf_x86_compile(const char *c) {
                 printf("\taddl $%d, %%edi\n", n);
                 break;
             case '+':
-                for(n = 1; *c == '+' && n < UINT_MAX; n++, c++);
+                for(n = 1; *c == '+' && n < UCHAR_MAX; n++, c++);
                 printf("\taddb $%d, (%%edi)\n", n);
                 break;
             case '-':
-                for(n = 1; *c == '-' && n < UINT_MAX; n++, c++);
+                for(n = 1; *c == '-' && n < UCHAR_MAX; n++, c++);
                 printf("\tsubb $%d, (%%edi)\n", n);
                 break;
             case '.':
