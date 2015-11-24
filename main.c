@@ -36,8 +36,10 @@ read_file(const char *path) {
 
 int
 main(int argc, char **argv) {
+    /*
     bf_state_t *state;
     bf_program_t *program;
+    */
     char *codes;
 
     if (argc != 2) {
