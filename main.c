@@ -47,15 +47,19 @@ main(int argc, char **argv) {
     if ((codes = read_file(*++argv)) == NULL) {
          return 1;
     }
-    program = bf_compile(codes);
+
+    bf_x86_compile(codes);
     free(codes);
 
-    // bf_disasm(program);
-
+    /*
+    program = bf_compile(codes);
+    free(codes);
+    bf_disasm(program);
     state = bf_state_new();
     bf_run(state, program);
     bf_program_delete(program);
     bf_state_delete(state);
+    */
 
     return 0;
 }

@@ -43,3 +43,6 @@ void bf_assemble(bf_program_t *);
 void bf_disasm(bf_program_t *);
 void bf_run(bf_state_t *, bf_program_t *);
 void bf_program_delete(bf_program_t *);
+
+// x86
+void bf_x86_compile(const char *);
