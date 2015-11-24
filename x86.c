@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include <limits.h>
 
 void
 bf_x86_compile(const char *c) {
@@ -21,23 +22,23 @@ bf_x86_compile(const char *c) {
     printf("\tmovl $tape, %%edi\n");
 
     for (;;) {
-        int n;
+        unsigned int n;
 
         switch (*c++) {
             case '>':
-                for(n = 1; *c == '<' && n < OPCODE_MAX; n++, c++);
+                for(n = 1; *c == '<' && n < UINT_MAX; n++, c++);
                 printf("\tsubl $%d, %%edi\n", n);
                 break;
             case '<':
-                for(n = 1; *c == '>' && n < OPCODE_MAX; n++, c++);
+                for(n = 1; *c == '>' && n < UINT_MAX; n++, c++);
                 printf("\taddl $%d, %%edi\n", n);
                 break;
             case '+':
-                for(n = 1; *c == '+' && n < OPCODE_MAX; n++, c++);
+                for(n = 1; *c == '+' && n < UINT_MAX; n++, c++);
                 printf("\taddb $%d, (%%edi)\n", n);
                 break;
             case '-':
-                for(n = 1; *c == '-' && n < OPCODE_MAX; n++, c++);
+                for(n = 1; *c == '-' && n < UINT_MAX; n++, c++);
                 printf("\tsubb $%d, (%%edi)\n", n);
                 break;
             case '.':
