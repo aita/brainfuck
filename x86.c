@@ -7,7 +7,7 @@ void
 bf_x86_compile(const char *c) {
     int label = 0;
     int nloops = 0;
-    int loops[MAX_LABELS];
+    int loops[MAX_LOOPS];
 
     printf(".section .data\n");
     printf("\t.comm tape, %d\n", TAPE_LENGTH);

@@ -2,7 +2,7 @@
 #include <stdlib.h>
 
 #define TAPE_LENGTH 30000
-#define MAX_LABELS 1000
+#define MAX_LOOPS 1000
 #define PROGRAM_SIZE 100000
 #define OPCODE_MAX ULONG_MAX
 
