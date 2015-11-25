@@ -6,7 +6,7 @@ static char *
 read_file(const char *path) {
     FILE *fp;
     char *s;
-    size_t len;
+    long len;
 
     if ((fp = fopen(path, "r")) == NULL) {
         return NULL;
@@ -24,7 +24,7 @@ read_file(const char *path) {
          return NULL;
     }
     s[len] = 0;
-    if (fread(s, 1, len, fp) < 0) {
+    if (fread(s, 1, len, fp) == 0) {
          return NULL;
     }
     if (fclose(fp) < 0) {
